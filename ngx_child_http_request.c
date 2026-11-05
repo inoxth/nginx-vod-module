@@ -428,6 +428,11 @@ ngx_child_request_copy_headers(
 #if defined(nginx_version) && nginx_version >= 1023000
 	// zero all named header fields
 	for (hh = ngx_http_headers_in; hh->name.len; hh++) {
+		// offset 0 means no named field (e.g. Proxy-Connection in nginx 1.31.0+)
+		if (hh->offset == 0) {
+			continue;
+		}
+
 		ph = (ngx_table_elt_t **)((char *)dest + hh->offset);
 		*ph = NULL;
 	}
@@ -486,7 +491,7 @@ ngx_child_request_copy_headers(
 		// update the header pointer, if exists
 		hh = ngx_hash_find(&cmcf->headers_in_hash, ch->hash,
 			ch->lowcase_key, ch->key.len);
-		if (hh)
+		if (hh && hh->offset != 0)
 		{
 #if defined(nginx_version) && nginx_version >= 1023000
 			ph = (ngx_table_elt_t **)((char *)dest + hh->offset);
