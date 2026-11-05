@@ -1197,6 +1197,21 @@ The parameter value can contain variables, if the parameter evaluates to an empt
 If not set, vod_base_url will be used.
 The setting currently affects only HLS.
 
+#### vod_segments_path_prefix
+* **syntax**: `vod_segments_path_prefix prefix`
+* **default**: `none`
+* **context**: `http`, `server`, `location`
+
+Sets a path that is inserted into the URLs of video segments, after the base URL.
+For example, with `vod_segments_path_prefix token123`, the segment `http://host/vod/a.mp4/seg-1-v1-a1.ts`
+is returned as `http://host/vod/a.mp4/token123/seg-1-v1-a1.ts`.
+When the DASH segment list format is used, the prefix is inserted after the host (`http://host/token123/vod/a.mp4/...`).
+Leading and trailing slashes are ignored. The parameter value can contain variables, if the parameter evaluates
+to an empty string, the URLs are not changed.
+The setting affects only HLS index playlists when `vod_hls_absolute_index_urls` is enabled, and DASH manifests
+when `vod_dash_absolute_manifest_urls` is enabled. In DASH, it is not applied when the segment list format is used
+with relative URLs.
+
 #### vod_multi_uri_suffix
 * **syntax**: `vod_multi_uri_suffix suffix`
 * **default**: `.urlset`

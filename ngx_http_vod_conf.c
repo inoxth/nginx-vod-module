@@ -189,6 +189,11 @@ ngx_http_vod_merge_loc_conf(ngx_conf_t *cf, void *parent, void *child)
 		conf->segments_base_url = prev->segments_base_url;
 	}
 
+	if (conf->segments_path_prefix == NULL)
+	{
+		conf->segments_path_prefix = prev->segments_path_prefix;
+	}
+
 	ngx_conf_merge_ptr_value(conf->metadata_cache, prev->metadata_cache, NULL);
 	ngx_conf_merge_ptr_value(conf->dynamic_mapping_cache, prev->dynamic_mapping_cache, NULL);
 
@@ -988,6 +993,13 @@ ngx_command_t ngx_http_vod_commands[] = {
 	ngx_http_set_complex_value_slot,
 	NGX_HTTP_LOC_CONF_OFFSET,
 	offsetof(ngx_http_vod_loc_conf_t, segments_base_url),
+	NULL },
+
+	{ ngx_string("vod_segments_path_prefix"),
+	NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF | NGX_CONF_TAKE1,
+	ngx_http_set_complex_value_slot,
+	NGX_HTTP_LOC_CONF_OFFSET,
+	offsetof(ngx_http_vod_loc_conf_t, segments_path_prefix),
 	NULL },
 	
 	// mp4 reading parameters

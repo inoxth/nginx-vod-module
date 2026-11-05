@@ -24,6 +24,11 @@ ngx_int_t ngx_http_vod_get_base_url(
 	ngx_str_t* file_uri,
 	ngx_str_t* result);
 
+ngx_int_t ngx_http_vod_apply_path_prefix(
+	ngx_http_request_t* r,
+	ngx_http_complex_value_t* conf_path_prefix,
+	ngx_str_t* base_url);
+
 ngx_int_t ngx_http_vod_merge_string_parts(
 	ngx_http_request_t* r,
 	ngx_str_t* parts,

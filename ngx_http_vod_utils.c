@@ -299,6 +299,72 @@ ngx_http_vod_get_base_url(
 }
 
 ngx_int_t
+ngx_http_vod_apply_path_prefix(
+	ngx_http_request_t* r,
+	ngx_http_complex_value_t* conf_path_prefix,
+	ngx_str_t* base_url)
+{
+	ngx_str_t prefix;
+	u_char* p;
+
+	if (ngx_http_complex_value(
+		r,
+		conf_path_prefix,
+		&prefix) != NGX_OK)
+	{
+		ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+			"ngx_http_vod_apply_path_prefix: ngx_http_complex_value failed");
+		return NGX_ERROR;
+	}
+
+	while (prefix.len > 0 && prefix.data[0] == '/')
+	{
+		prefix.data++;
+		prefix.len--;
+	}
+
+	while (prefix.len > 0 && prefix.data[prefix.len - 1] == '/')
+	{
+		prefix.len--;
+	}
+
+	if (prefix.len == 0)
+	{
+		return NGX_OK;
+	}
+
+	p = ngx_palloc(r->pool, base_url->len + prefix.len + sizeof("/"));
+	if (p == NULL)
+	{
+		ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+			"ngx_http_vod_apply_path_prefix: ngx_palloc failed");
+		return NGX_ERROR;
+	}
+
+	if (base_url->len == 0 || base_url->data[base_url->len - 1] == '/')
+	{
+		// base url is a directory (or empty - relative urls), the prefix is appended as a sub directory
+		base_url->data = vod_copy(p, base_url->data, base_url->len);
+		base_url->data = vod_copy(base_url->data, prefix.data, prefix.len);
+		*base_url->data++ = '/';
+	}
+	else
+	{
+		// base url is scheme + host only, the caller appends a uri that starts with a slash
+		base_url->data = vod_copy(p, base_url->data, base_url->len);
+		*base_url->data++ = '/';
+		base_url->data = vod_copy(base_url->data, prefix.data, prefix.len);
+	}
+
+	*base_url->data = '\0';
+
+	base_url->len = base_url->data - p;
+	base_url->data = p;
+
+	return NGX_OK;
+}
+
+ngx_int_t
 ngx_http_vod_merge_string_parts(ngx_http_request_t* r, ngx_str_t* parts, uint32_t part_count, ngx_str_t* result)
 {
 	ngx_str_t* cur_part;

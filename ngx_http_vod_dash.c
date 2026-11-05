@@ -75,6 +75,20 @@ ngx_http_vod_dash_handle_manifest(
 		{
 			return rc;
 		}
+
+		// with segment list and relative urls, the packager appends the uri to an empty base url,
+		// adding the prefix would produce an invalid relative url
+		if (conf->segments_path_prefix != NULL && (file_uri.len != 0 || base_url.len != 0))
+		{
+			rc = ngx_http_vod_apply_path_prefix(
+				submodule_context->r,
+				conf->segments_path_prefix,
+				&base_url);
+			if (rc != NGX_OK)
+			{
+				return rc;
+			}
+		}
 	}
 
 #if (NGX_HAVE_OPENSSL_EVP)

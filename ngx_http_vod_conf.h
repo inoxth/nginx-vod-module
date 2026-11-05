@@ -46,6 +46,7 @@ struct ngx_http_vod_loc_conf_s {
 	ngx_http_complex_value_t *encryption_iv_seed;
 	ngx_http_complex_value_t *base_url;
 	ngx_http_complex_value_t *segments_base_url;
+	ngx_http_complex_value_t *segments_path_prefix;
 	ngx_buffer_cache_t* metadata_cache;
 	ngx_buffer_cache_t* response_cache[CACHE_TYPE_COUNT];
 	size_t initial_read_size;

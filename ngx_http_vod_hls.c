@@ -443,6 +443,18 @@ ngx_http_vod_hls_handle_index_playlist(
 		{
 			segments_base_url = base_url;
 		}
+
+		if (conf->segments_path_prefix != NULL)
+		{
+			rc = ngx_http_vod_apply_path_prefix(
+				submodule_context->r,
+				conf->segments_path_prefix,
+				&segments_base_url);
+			if (rc != NGX_OK)
+			{
+				return rc;
+			}
+		}
 	}
 
 	container_format = ngx_http_vod_hls_get_container_format(
