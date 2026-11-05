@@ -1210,7 +1210,26 @@ Leading and trailing slashes are ignored. The parameter value can contain variab
 to an empty string, the URLs are not changed.
 The setting affects only HLS index playlists when `vod_hls_absolute_index_urls` is enabled, and DASH manifests
 when `vod_dash_absolute_manifest_urls` is enabled. In DASH, it is not applied when the segment list format is used
-with relative URLs.
+with relative URLs. In HLS, the URLs of the encryption key and the fMP4 init segment (`EXT-X-MAP`) are not affected.
+
+Since the prefix is only added to the URLs returned in the manifests, requests for the segments must be
+rewritten to remove it before they are handled by nginx-vod-module. For example, for URLs of the form
+`/vod/{file}/{prefix}/{segment}`:
+```
+location /vod/ {
+	rewrite ^(/vod/[^/]+)/[^/]+/([^/]+)$ $1/$2 last;
+
+	alias /path/to/mapping/files/;
+	vod hls;
+	vod_mode mapped;
+	vod_hls_absolute_index_urls on;
+	vod_segments_path_prefix $vod_set_id;
+}
+```
+A typical use case is invalidating segments cached on a CDN when the content of a mapped set changes,
+without changing the manifest URL - change the `id` of the set in the mapping JSON and the segments
+will be requested from new URLs. In this case, the manifests should be cached for a short period only,
+since they still use the same URL.
 
 #### vod_multi_uri_suffix
 * **syntax**: `vod_multi_uri_suffix suffix`
